@@ -6,8 +6,7 @@ pygame.init()
 pygame.font.init()
 
 FPS = 60
-number1 = 10
-object_number = 10
+number1 = 20
 screen = pygame.display.set_mode((1500, 1000))
 
 RED = (255, 0, 0)
@@ -32,7 +31,7 @@ def is_hit(x_mouse, y_mouse, k):
 
 def point_draw():
     font1 = pygame.font.SysFont('arial', 100)
-    text = str(points1)
+    text = str(points)
     tekst = font1.render(text, True, WHITE)
     screen.blit(tekst, (10, 10))
 
@@ -40,19 +39,20 @@ clock = pygame.time.Clock()
 finished = False
 
 im1 = pygame.image.load('9_purple.png')
-
 a = 0
 b = 0
-points1 = 0
-points2 = 0
+points = 0
 hitreg = [0]*number1
 x1 = [750]*number1
 y1 = [500]*number1
 r1 = [50]*number1
 Vx1 = [0]*number1
 Vy1 = [0]*number1
+x2 = 750
+y2 = 1000
+Vy2 = 5
+sus_finished = 0
 color = [COLORS[randint(0, 5)]]*number1
-new_ball(1)
 pygame.display.update()
 
 for i in range(number1):
@@ -62,6 +62,11 @@ for i in range(number1):
     Vx1[i] = ((random()-0.5)/0.5)*10
     Vy1[i] = ((random()-0.5)/0.5)*10
     color[i] = COLORS[randint(0, 5)]
+
+x2 = randint(0, 1350)
+
+print("Enter nickname")
+nick = input()
 
 while not finished:
     clock.tick(FPS)
@@ -77,12 +82,23 @@ while not finished:
         if x1[i] <= r1[i] or x1[i] >= 1500 - r1[i]: Vx1[i] = -Vx1[i]
         if y1[i] <= r1[i] or y1[i] >= 1000 - r1[i]: Vy1[i] = -Vy1[i]
 
+    if y2 <= 850:
+        Vy2 = -Vy2
+    elif y2 >= 1100:
+        Vy2 = -Vy2
+        sus_finished = 1
+
+    screen.blit(im1, (x2, y2))
+    y2 += Vy2
+
     for i in range(number1):
         new_ball(i)
         x1[i] += Vx1[i]
         y1[i] += Vy1[i]
 
     screen.fill(BLACK)
+
+    screen.blit(im1, (x2, y2))
 
     for i in range(number1):
         new_ball(i)
@@ -100,15 +116,67 @@ while not finished:
             Vx1[i] = ((random()-0.5)/0.5)*10
             Vy1[i] = ((random()-0.5)/0.5)*10
             color[i] = COLORS[randint(0, 5)]
-            points1 += 1
+            points += 1
             new_ball(i)
             screen.fill(BLACK)
             pygame.display.update()
+
+    if a >= x2 and a <= x2 + 150 and b >= y2 and b <= y2 + 200: points += 10
+
+    if sus_finished == 1:
+        x2 = randint(0, 1350)
+        sus_finished = 0
 
     point_draw()
     a = 0
     b = 0
     pygame.display.update()
 
+text = open('recordtable.txt', 'r')
+table = text.readlines()
+
+linenum = len(table)
+best_scores = [0]*5
+best_scores_numbers = [0]*6
+best_scores_names = [0]*6
+sort_trigger = 0
+
+best_scores_numbers[5] = points
+best_scores_names[5] = nick
+
+for i in range(5):
+    best_scores[i] = table[i].split()
+
+for i in range(5):
+    best_scores_numbers[i] = int(best_scores[i][0])
+    best_scores_names[i] = best_scores[i][1]
+
+for i in range(5):
+    if points > best_scores_numbers[i]:
+        sort_trigger = 1
+
+temp = 0
+
+if sort_trigger == 1:
+    for i in range(6):
+        for k in range(i):
+            if best_scores_numbers[k] < best_scores_numbers[i]:
+                temp = best_scores_numbers[i]
+                best_scores_numbers[i] = best_scores_numbers[k]
+                best_scores_numbers[k] = temp
+                temp = best_scores_names[i]
+                best_scores_names[i] = best_scores_names[k]
+                best_scores_names[k] = temp
+
+best = open('recordtable.txt', 'w')
+for i in range(5):
+    print(best_scores_numbers[i], best_scores_names[i], file=best)
+
+print(table)
+print(best_scores)
+print(best_scores_numbers)
+print(best_scores_names)
+best.close()
+text.close()
 pygame.quit()
 pygame.font.quit()
