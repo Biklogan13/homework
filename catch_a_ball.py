@@ -7,8 +7,8 @@ pygame.font.init()
 
 FPS = 60
 number1 = 20
-screen_width = 1500
-screen_height = 1000
+screen_width = 1024
+screen_height = 1024 #it's recommended to use even values
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 RED = (255, 0, 0)
@@ -41,6 +41,8 @@ clock = pygame.time.Clock()
 finished = False
 
 im1 = pygame.image.load('9_purple.png')
+background = pygame.image.load('ff0b5d4b-95c9-4634-b2bf-4c6366f3893e_1024.jpg')
+background = pygame.transform.scale(background, (screen_width, screen_height))
 a = 0
 b = 0
 points = 0
@@ -102,7 +104,8 @@ while not finished:
         x1[i] += Vx1[i]
         y1[i] += Vy1[i]
 
-    screen.fill(BLACK)
+    #screen.fill(BLACK)
+    screen.blit(background, (0, 0))
 
     screen.blit(im1, (x2, y2))
 
@@ -124,7 +127,7 @@ while not finished:
             color[i] = COLORS[randint(0, 5)]
             points += 1
             new_ball(i)
-            screen.fill(BLACK)
+            screen.blit(background, (0, 0))
             pygame.display.update()
 
     if a >= x2 and a <= x2 + 150 and b >= y2 and b <= y2 + 200: points += 10
