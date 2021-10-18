@@ -178,10 +178,8 @@ best = open('recordtable.txt', 'w')
 for i in range(5):
     print(best_scores_numbers[i], best_scores_names[i], file=best)
 
-print(table)
-print(best_scores)
-print(best_scores_numbers)
-print(best_scores_names)
+for i in range(5):
+    print(best_scores_numbers[i], best_scores_names[i])
 best.close()
 text.close()
 pygame.quit()
