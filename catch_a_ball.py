@@ -7,7 +7,9 @@ pygame.font.init()
 
 FPS = 60
 number1 = 20
-screen = pygame.display.set_mode((1500, 1000))
+screen_width = 1500
+screen_height = 1000
+screen = pygame.display.set_mode((screen_width, screen_height))
 
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
@@ -30,7 +32,7 @@ def is_hit(x_mouse, y_mouse, k):
         return False
 
 def point_draw():
-    font1 = pygame.font.SysFont('arial', 100)
+    font1 = pygame.font.SysFont('arial', int(100*screen_height/1500))
     text = str(points)
     tekst = font1.render(text, True, WHITE)
     screen.blit(tekst, (10, 10))
@@ -43,27 +45,31 @@ a = 0
 b = 0
 points = 0
 hitreg = [0]*number1
-x1 = [750]*number1
-y1 = [500]*number1
-r1 = [50]*number1
+x1 = [0]*number1
+y1 = [0]*number1
+r1 = [0]*number1
 Vx1 = [0]*number1
 Vy1 = [0]*number1
-x2 = 750
-y2 = 1000
+x2 = 0
+y2 = screen_height
 Vy2 = 5
 sus_finished = 0
 color = [COLORS[randint(0, 5)]]*number1
-pygame.display.update()
 
 for i in range(number1):
-    x1[i] = randint(100, 1400)
-    y1[i] = randint(100, 900)
+    x1[i] = randint(100, screen_width - 100)
+    y1[i] = randint(100, screen_height - 100)
     r1[i] = randint(20, 80)
     Vx1[i] = ((random()-0.5)/0.5)*10
     Vy1[i] = ((random()-0.5)/0.5)*10
     color[i] = COLORS[randint(0, 5)]
 
-x2 = randint(0, 1350)
+x2 = randint(0, screen_width - 150)
+
+font2 = pygame.font.SysFont('arial', int(100*screen_height/1500))
+tekst = font2.render('Enter nickname', True, WHITE)
+screen.blit(tekst, (10, 10))
+pygame.display.update()
 
 print("Enter nickname")
 nick = input()
@@ -79,12 +85,12 @@ while not finished:
                 b = event.pos[1]
 
     for i in range(number1):
-        if x1[i] <= r1[i] or x1[i] >= 1500 - r1[i]: Vx1[i] = -Vx1[i]
-        if y1[i] <= r1[i] or y1[i] >= 1000 - r1[i]: Vy1[i] = -Vy1[i]
+        if x1[i] <= r1[i] or x1[i] >= screen_width - r1[i]: Vx1[i] = -Vx1[i]
+        if y1[i] <= r1[i] or y1[i] >= screen_height - r1[i]: Vy1[i] = -Vy1[i]
 
-    if y2 <= 850:
+    if y2 <= screen_height - 150:
         Vy2 = -Vy2
-    elif y2 >= 1100:
+    elif y2 >= screen_height + 100:
         Vy2 = -Vy2
         sus_finished = 1
 
@@ -110,8 +116,8 @@ while not finished:
 
     for i in range(number1):
         if hitreg[i] == 1:
-            x1[i] = randint(100, 1400)
-            y1[i] = randint(100, 900)
+            x1[i] = randint(100, screen_width - 100)
+            y1[i] = randint(100, screen_height - 100)
             r1[i] = randint(20, 80)
             Vx1[i] = ((random()-0.5)/0.5)*10
             Vy1[i] = ((random()-0.5)/0.5)*10
@@ -124,7 +130,7 @@ while not finished:
     if a >= x2 and a <= x2 + 150 and b >= y2 and b <= y2 + 200: points += 10
 
     if sus_finished == 1:
-        x2 = randint(0, 1350)
+        x2 = randint(0, screen_width - 150)
         sus_finished = 0
 
     point_draw()
