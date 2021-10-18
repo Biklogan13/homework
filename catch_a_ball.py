@@ -180,6 +180,8 @@ for i in range(5):
 
 for i in range(5):
     print(best_scores_numbers[i], best_scores_names[i])
+
+print('Your score:', points)
 best.close()
 text.close()
 pygame.quit()
