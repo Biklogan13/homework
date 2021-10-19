@@ -4,6 +4,7 @@ from random import randint
 from random import random
 pygame.init()
 pygame.font.init()
+pygame.mixer.init()
 
 FPS = 60
 number1 = 20
@@ -43,8 +44,10 @@ finished = False
 im1 = pygame.image.load('9_purple.png')
 background = pygame.image.load('ff0b5d4b-95c9-4634-b2bf-4c6366f3893e_1024.jpg')
 background = pygame.transform.scale(background, (screen_width, screen_height))
+music = pygame.mixer.Sound(file='Fate_Apocrypha_opening_1.ogg')
 a = 0
 b = 0
+time_remaining = 94
 points = 0
 hitreg = [0]*number1
 x1 = [0]*number1
@@ -76,6 +79,8 @@ pygame.display.update()
 print("Enter nickname")
 nick = input()
 
+pygame.mixer.Sound.play(music)
+
 while not finished:
     clock.tick(FPS)
     for event in pygame.event.get():
@@ -85,6 +90,8 @@ while not finished:
             if event.button == 1:
                 a = event.pos[0]
                 b = event.pos[1]
+
+    if time_remaining <= 0: finished = True
 
     for i in range(number1):
         if x1[i] <= r1[i] or x1[i] >= screen_width - r1[i]: Vx1[i] = -Vx1[i]
@@ -139,7 +146,11 @@ while not finished:
     point_draw()
     a = 0
     b = 0
+    #print(time_remaining)
+    time_remaining -= 1/60
     pygame.display.update()
+
+pygame.mixer.Sound.stop(music)
 
 text = open('recordtable.txt', 'r')
 table = text.readlines()
@@ -189,3 +200,4 @@ best.close()
 text.close()
 pygame.quit()
 pygame.font.quit()
+pygame.mixer.quit()
