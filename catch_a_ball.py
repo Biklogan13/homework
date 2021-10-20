@@ -160,7 +160,6 @@ best_scores = [0]*5
 best_scores_numbers = [0]*6
 best_scores_names = [0]*6
 sort_trigger = 0
-
 best_scores_numbers[5] = points
 best_scores_names[5] = nick
 
