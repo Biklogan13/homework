@@ -199,6 +199,7 @@ class Laser:
         else:
             return False
 
+
 ammo = 0
 
 def ammo_change(a:int):
@@ -222,6 +223,15 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 bullet = 0
 balls = []
 
+#balloon = pygame.image.load('pngfind.com-captain-planet-png-6387166.png')
+#balloon = pygame.transform.scale(balloon, (96, 163))
+
+#blast = pygame.image.load('image.png')
+#blast = pygame.transform.scale(blast, (400, 400))
+
+background = pygame.image.load('5163520.jpg')
+background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+
 clock = pygame.time.Clock()
 gun = Gun(screen)
 target1 = Target()
@@ -230,18 +240,14 @@ laser = Laser()
 finished = False
 
 while not finished:
-    screen.fill(WHITE)
+    screen.blit(background, (0, 0))
+    #screen.fill(WHITE)
     gun.draw()
     target1.draw()
     target2.draw()
     hint()
-
-    if ammo == 0:
-        for b in balls:
-            b.draw()
-    elif laser.firing == 1:
-        laser.draw()
-    pygame.display.update()
+    #screen.blit(balloon, (500, 500))
+    #screen.blit(blast, (350, 370))
 
     clock.tick(FPS)
     for event in pygame.event.get():
@@ -263,6 +269,13 @@ while not finished:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LSHIFT:
                 ammo_change(ammo)
+
+    if ammo == 0:
+        for b in balls:
+            b.draw()
+    elif laser.firing == 1:
+        laser.draw()
+    pygame.display.update()
 
     target1.move()
     target2.move()
