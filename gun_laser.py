@@ -194,7 +194,7 @@ class Laser:
             self.color = GREY
 
     def hittest_laser(self, obj):
-        if abs(math.sin(self.angle)*obj.x - math.cos(self.angle)*obj.y - math.sin(self.angle)*20 + math.cos(self.angle)*(HEIGHT/2)) <= 10 + obj.r:
+        if abs(math.sin(self.angle)*obj.x - math.cos(self.angle)*obj.y - math.sin(self.angle)*20 + math.cos(self.angle)*(HEIGHT/2)) <= 10 + obj.r and self.firing == 1:
             return True
         else:
             return False
