@@ -31,8 +31,8 @@ class Ball:
         y - начальное положение мяча по вертикали
         """
         self.screen = screen
-        self.x = 20 + math.cos(gun.an)*gun.f2_power
-        self.y = 450 + math.sin(gun.an)*gun.f2_power
+        self.x = gun.x + math.cos(gun.an)*gun.f2_power
+        self.y = gun.y + math.sin(gun.an)*gun.f2_power
         self.r = 10
         self.vx = 0
         self.vy = 0
@@ -84,6 +84,8 @@ class Gun:
         self.f2_on = 0
         self.an = 1
         self.color = GREY
+        self.x = 20
+        self.y = HEIGHT/2
 
     def fire2_start(self, event):
         self.f2_on = 1
@@ -108,7 +110,7 @@ class Gun:
     def targetting(self, event):
         """Прицеливание. Зависит от положения мыши."""
         if event:
-            self.an = math.atan2((event.pos[1]-(HEIGHT/2)), (event.pos[0]-20))
+            self.an = math.atan2((event.pos[1]-self.y), (event.pos[0]-self.x))
         if self.f2_on:
             self.color = RED
         else:
@@ -116,7 +118,7 @@ class Gun:
 
     def draw(self):
         #y = 450, x = 20
-        pygame.draw.line(self.screen, self.color, (20, (HEIGHT/2)), (20 + math.cos(self.an)*self.f2_power, (HEIGHT/2) + math.sin(self.an)*self.f2_power), width=10)
+        pygame.draw.line(self.screen, self.color, (self.x, self.y), (self.x + math.cos(self.an)*self.f2_power, self.y + math.sin(self.an)*self.f2_power), width=10)
 
     def power_up(self):
         if self.f2_on:
@@ -125,6 +127,9 @@ class Gun:
             self.color = RED
         else:
             self.color = GREY
+    def move(self, vx, vy):
+        self.x += vx
+        self.y += vy
 
 
 class Target:
@@ -177,9 +182,9 @@ class Laser:
         self.firing = 0
 
     def draw(self):
-        pygame.draw.line(self.screen, RED, (20, (HEIGHT / 2)), (20 + math.cos(gun.an) * 2*WIDTH, (HEIGHT / 2) + math.sin(gun.an) * 2*WIDTH), width=20)
-        pygame.draw.line(self.screen, ORANGE, (20, (HEIGHT / 2)), (20 + math.cos(gun.an) * 2*WIDTH, (HEIGHT / 2) + math.sin(gun.an) * 2*WIDTH), width=8)
-        pygame.draw.line(self.screen, YELLOW, (20, (HEIGHT / 2)), (20 + math.cos(gun.an) * 2*WIDTH, (HEIGHT / 2) + math.sin(gun.an) * 2*WIDTH), width=2)
+        pygame.draw.line(self.screen, RED, (gun.x, gun.y), (gun.x + math.cos(gun.an) * 2*WIDTH, gun.y + math.sin(gun.an) * 2*WIDTH), width=20)
+        pygame.draw.line(self.screen, ORANGE, (gun.x, gun.y), (gun.x + math.cos(gun.an) * 2*WIDTH, gun.y + math.sin(gun.an) * 2*WIDTH), width=8)
+        pygame.draw.line(self.screen, YELLOW, (gun.x, gun.y), (gun.x + math.cos(gun.an) * 2*WIDTH, gun.y + math.sin(gun.an) * 2*WIDTH), width=2)
 
     #def lensdraw(self):
     #        # y = 450, x = 20
@@ -187,14 +192,14 @@ class Laser:
 
     def targetting(self, event):
         if event:
-            self.angle = math.atan2((event.pos[1]-(HEIGHT/2)), (event.pos[0]-20))
+            self.angle = math.atan2((event.pos[1]-gun.y), (event.pos[0]-gun.x))
         if self.firing:
             self.color = RED
         else:
             self.color = GREY
 
     def hittest_laser(self, obj):
-        if abs(math.sin(self.angle)*obj.x - math.cos(self.angle)*obj.y - math.sin(self.angle)*20 + math.cos(self.angle)*(HEIGHT/2)) <= 10 + obj.r and self.firing == 1:
+        if abs(math.sin(self.angle)*obj.x - math.cos(self.angle)*obj.y - math.sin(self.angle)*gun.x + math.cos(self.angle)*gun.y) <= 10 + obj.r and self.firing == 1:
             return True
         else:
             return False
@@ -212,9 +217,12 @@ def ammo_change(a:int):
 
 def hint():
     font1 = pygame.font.SysFont('arial', int(50 * HEIGHT / 1500))
-    text = "Press SHIFT to change ammo"
-    tekst = font1.render(text, True, BLACK)
+    text1 = "Press SHIFT to change ammo"
+    text2 = 'Press W,A,S,D to move'
+    tekst = font1.render(text1, True, BLACK)
     screen.blit(tekst, (10, 10))
+    tekst = font1.render(text2, True, BLACK)
+    screen.blit(tekst, (10, 50))
 
 pygame.init()
 pygame.font.init()
@@ -238,6 +246,7 @@ target1 = Target()
 target2 = Target()
 laser = Laser()
 finished = False
+gun_movement = 0
 
 while not finished:
     screen.blit(background, (0, 0))
@@ -269,6 +278,34 @@ while not finished:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LSHIFT:
                 ammo_change(ammo)
+            '''
+            if event.key == pygame.K_w:
+                gun_movement = 1
+            if event.key == pygame.K_a:
+                gun_movement = 2
+            if event.key == pygame.K_s:
+                gun_movement = 3
+            if event.key == pygame.K_d:
+                gun_movement = 4
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_w:
+                gun_movement = 0
+            if event.key == pygame.K_a:
+                gun_movement = 0
+            if event.key == pygame.K_s:
+                gun_movement = 0
+            if event.key == pygame.K_d:
+                gun_movement = 0
+            '''
+
+    if pygame.key.get_pressed()[pygame.K_w]:
+        gun.move(0, -2)
+    elif pygame.key.get_pressed()[pygame.K_a]:
+        gun.move(-2, 0)
+    elif pygame.key.get_pressed()[pygame.K_s]:
+        gun.move(0, 2)
+    elif pygame.key.get_pressed()[pygame.K_d]:
+        gun.move(2, 0)
 
     if ammo == 0:
         for b in balls:
