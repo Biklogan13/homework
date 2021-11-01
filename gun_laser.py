@@ -4,7 +4,7 @@ import random
 import pygame
 
 
-FPS = 30
+FPS = 60
 
 RED = 0xFF0000
 BLUE = 0x0000FF
@@ -48,6 +48,8 @@ class Ball:
         """
         self.x += self.vx
         self.y += self.vy
+        if self.y >= HEIGHT - self.r: self.vy = -0.8*self.vy
+        else: self.vy += 0.5
 
     def draw(self):
         pygame.draw.circle(
