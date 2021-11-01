@@ -46,10 +46,13 @@ class Ball:
         self.x и self.y с учетом скоростей self.vx и self.vy, силы гравитации, действующей на мяч,
         и стен по краям окна (размер окна 800х600).
         """
+
+        if self.y >= HEIGHT - self.r:
+            self.vy = -0.8*self.vy
+        else:
+            self.vy += 0.5
         self.x += self.vx
         self.y += self.vy
-        if self.y >= HEIGHT - self.r: self.vy = -0.8*self.vy
-        else: self.vy += 0.5
 
     def draw(self):
         pygame.draw.circle(
@@ -206,6 +209,12 @@ def ammo_change(a:int):
         ammo = 1
     print(a)
 
+def hint():
+    font1 = pygame.font.SysFont('arial', int(50 * HEIGHT / 1500))
+    text = "Press SHIFT to change ammo"
+    tekst = font1.render(text, True, BLACK)
+    screen.blit(tekst, (10, 10))
+
 pygame.init()
 pygame.font.init()
 pygame.mixer.init()
@@ -225,6 +234,7 @@ while not finished:
     gun.draw()
     target1.draw()
     target2.draw()
+    hint()
 
     if ammo == 0:
         for b in balls:
