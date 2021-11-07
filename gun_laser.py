@@ -38,6 +38,8 @@ class Ball:
         self.vy = 0
         self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         self.live = 30
+        self.angle = math.atan2(self.vy, self.vx)
+        self.bullet = bullet
 
     def move(self):
         """Переместить мяч по прошествии единицы времени.
@@ -55,12 +57,10 @@ class Ball:
         self.y += self.vy
 
     def draw(self):
-        pygame.draw.circle(
-            self.screen,
-            self.color,
-            (self.x, self.y),
-            self.r
-        )
+        self.angle = math.atan2(self.vy, self.vx)
+        #pygame.draw.circle(self.screen, self.color, (self.x, self.y), self.r)
+        self.bullet = rot_center(bullet, self.angle*360/(-2*math.pi))
+        self.screen.blit(self.bullet, (self.x - 20, self.y - 20))
 
     def hittest(self, obj):
         """Функция проверяет сталкивалкивается ли данный обьект с целью, описываемой в обьекте obj.
@@ -96,8 +96,7 @@ class Gun:
         Происходит при отпускании кнопки мыши.
         Начальные значения компонент скорости мяча vx и vy зависят от положения мыши.
         """
-        global balls, bullet
-        bullet += 1
+        global balls
         new_ball = Ball(self.screen)
         new_ball.r += 5
         self.an = math.atan2((event.pos[1] - new_ball.y), (event.pos[0] - new_ball.x))
@@ -119,6 +118,7 @@ class Gun:
     def draw(self):
         #y = 450, x = 20
         pygame.draw.line(self.screen, self.color, (self.x, self.y), (self.x + math.cos(self.an)*self.f2_power, self.y + math.sin(self.an)*self.f2_power), width=10)
+        pygame.draw.circle(self.screen, GREY, (self.x, self.y), 20)
 
     def power_up(self):
         if self.f2_on:
@@ -185,6 +185,7 @@ class Laser:
         pygame.draw.line(self.screen, RED, (gun.x, gun.y), (gun.x + math.cos(gun.an) * 2*WIDTH, gun.y + math.sin(gun.an) * 2*WIDTH), width=20)
         pygame.draw.line(self.screen, ORANGE, (gun.x, gun.y), (gun.x + math.cos(gun.an) * 2*WIDTH, gun.y + math.sin(gun.an) * 2*WIDTH), width=8)
         pygame.draw.line(self.screen, YELLOW, (gun.x, gun.y), (gun.x + math.cos(gun.an) * 2*WIDTH, gun.y + math.sin(gun.an) * 2*WIDTH), width=2)
+        pygame.draw.circle(self.screen, GREY, (gun.x, gun.y), 20)
 
     #def lensdraw(self):
     #        # y = 450, x = 20
@@ -224,11 +225,18 @@ def hint():
     tekst = font1.render(text2, True, BLACK)
     screen.blit(tekst, (10, 50))
 
+def rot_center(image, angle):
+    orig_rect = image.get_rect()
+    rot_image = pygame.transform.rotate(image, angle)
+    rot_rect = orig_rect.copy()
+    rot_rect.center = rot_image.get_rect().center
+    rot_image = rot_image.subsurface(rot_rect).copy()
+    return rot_image
+
 pygame.init()
 pygame.font.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-bullet = 0
 balls = []
 
 #balloon = pygame.image.load('pngfind.com-captain-planet-png-6387166.png')
@@ -239,6 +247,9 @@ balls = []
 
 background = pygame.image.load('5163520.jpg')
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+
+bullet = pygame.image.load('bullets-clip-art-129.png')
+bullet = pygame.transform.scale(bullet, (40, 40))
 
 clock = pygame.time.Clock()
 gun = Gun(screen)
