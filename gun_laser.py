@@ -18,8 +18,8 @@ WHITE = 0xFFFFFF
 GREY = 0x7D7D7D
 GAME_COLORS = [BLACK, RED, GREEN]
 
-WIDTH = 1500
-HEIGHT = 1000
+WIDTH = 850*2
+HEIGHT = 500*2
 
 
 class Ball:
@@ -31,8 +31,8 @@ class Ball:
         y - начальное положение мяча по вертикали
         """
         self.screen = screen
-        self.x = gun.x + math.cos(gun.an)*gun.f2_power
-        self.y = gun.y + math.sin(gun.an)*gun.f2_power
+        self.x = gun.x
+        self.y = gun.y
         self.r = 10
         self.vx = 0
         self.vy = 0
@@ -49,8 +49,9 @@ class Ball:
         и стен по краям окна (размер окна 800х600).
         """
 
-        if self.y >= HEIGHT - self.r:
-            self.vy = -0.8*self.vy
+        if self.y >= 2*HEIGHT - self.r:
+            self.vy = 0
+            self.vx = 0
         else:
             self.vy += 0.5
         self.x += self.vx
@@ -84,7 +85,7 @@ class Gun:
         self.f2_on = 0
         self.an = 1
         self.color = GREY
-        self.x = 20
+        self.x = WIDTH/2
         self.y = HEIGHT/2
 
     def fire2_start(self, event):
@@ -100,8 +101,8 @@ class Gun:
         new_ball = Ball(self.screen)
         new_ball.r += 5
         self.an = math.atan2((event.pos[1] - new_ball.y), (event.pos[0] - new_ball.x))
-        new_ball.vx = self.f2_power * math.cos(self.an)
-        new_ball.vy = self.f2_power * math.sin(self.an)
+        new_ball.vx = 30 * math.cos(self.an)
+        new_ball.vy = 30 * math.sin(self.an)
         balls.append(new_ball)
         self.f2_on = 0
         self.f2_power = 10
@@ -117,8 +118,9 @@ class Gun:
 
     def draw(self):
         #y = 450, x = 20
-        pygame.draw.line(self.screen, self.color, (self.x, self.y), (self.x + math.cos(self.an)*self.f2_power, self.y + math.sin(self.an)*self.f2_power), width=10)
-        pygame.draw.circle(self.screen, GREY, (self.x, self.y), 20)
+        #pygame.draw.line(self.screen, self.color, (self.x, self.y), (self.x + math.cos(self.an)*self.f2_power, self.y + math.sin(self.an)*self.f2_power), width=10)
+        #pygame.draw.circle(self.screen, GREY, (self.x, self.y), 20)
+        self.screen.blit(ufo, (self.x - 55, self.y - 31))
 
     def power_up(self):
         if self.f2_on:
@@ -134,9 +136,9 @@ class Gun:
 
 class Target:
     def __init__(self):
-        self.x = random.randint(WIDTH - 200, WIDTH - 61)
-        self.y = random.randint(HEIGHT - 300, HEIGHT - 61)
-        self.r = random.randint(10, 50)
+        self.x = random.randint(61, WIDTH - 61)
+        self.y = random.randint(61, 150)
+        self.r = 35
         self.points = 0
         self.live = 1
         self.color = RED
@@ -153,9 +155,9 @@ class Target:
 
     def new_target(self):
         """ Инициализация новой цели. """
-        self.x = random.randint(WIDTH - 200, WIDTH - 61)
-        self.y = random.randint(HEIGHT - 300, HEIGHT - 61)
-        self.r = random.randint(10, 50)
+        self.x = random.randint(61, WIDTH - 61)
+        self.y = random.randint(61, 150)
+        self.r = 35
         self.live = 1
         self.Vx = random.randint(-10, 10)
         self.Vy = random.randint(-10, 10)
@@ -165,7 +167,8 @@ class Target:
         self.points += points
 
     def draw(self):
-        pygame.draw.circle(screen, RED, (self.x, self.y), self.r)
+        #pygame.draw.circle(screen, RED, (self.x, self.y), self.r)
+        screen.blit(mark, (self.x - 35, self.y - 45))
 
 class Laser:
     def __init__(self):
@@ -185,7 +188,7 @@ class Laser:
         pygame.draw.line(self.screen, RED, (gun.x, gun.y), (gun.x + math.cos(gun.an) * 2*WIDTH, gun.y + math.sin(gun.an) * 2*WIDTH), width=20)
         pygame.draw.line(self.screen, ORANGE, (gun.x, gun.y), (gun.x + math.cos(gun.an) * 2*WIDTH, gun.y + math.sin(gun.an) * 2*WIDTH), width=8)
         pygame.draw.line(self.screen, YELLOW, (gun.x, gun.y), (gun.x + math.cos(gun.an) * 2*WIDTH, gun.y + math.sin(gun.an) * 2*WIDTH), width=2)
-        pygame.draw.circle(self.screen, GREY, (gun.x, gun.y), 20)
+        self.screen.blit(ufo, (gun.x - 55, gun.y - 31))
 
     #def lensdraw(self):
     #        # y = 450, x = 20
@@ -200,7 +203,7 @@ class Laser:
             self.color = GREY
 
     def hittest_laser(self, obj):
-        if abs(math.sin(self.angle)*obj.x - math.cos(self.angle)*obj.y - math.sin(self.angle)*gun.x + math.cos(self.angle)*gun.y) <= 10 + obj.r and self.firing == 1:
+        if abs(math.sin(self.angle)*obj.x - math.cos(self.angle)*obj.y - math.sin(self.angle)*gun.x + math.cos(self.angle)*gun.y) <= 10 + obj.r and (pygame.mouse.get_pos()[0] - gun.x)*(obj.x - gun.x) > 0 and self.firing == 1:
             return True
         else:
             return False
@@ -245,11 +248,17 @@ balls = []
 #blast = pygame.image.load('image.png')
 #blast = pygame.transform.scale(blast, (400, 400))
 
-background = pygame.image.load('5163520.jpg')
+background = pygame.image.load('How-ice-forms-inside-of-clouds-850x500.jpg')
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 
 bullet = pygame.image.load('bullets-clip-art-129.png')
 bullet = pygame.transform.scale(bullet, (40, 40))
+
+ufo = pygame.image.load('pngegg.png')
+ufo = pygame.transform.scale(ufo, (109, 62))
+
+mark = pygame.image.load('Adobe_20211107_235838.png')
+mark = pygame.transform.scale(mark, (70, 70))
 
 clock = pygame.time.Clock()
 gun = Gun(screen)
