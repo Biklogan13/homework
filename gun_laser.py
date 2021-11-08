@@ -136,8 +136,8 @@ class Gun:
 
 class Target:
     def __init__(self):
-        self.x = random.randint(61, WIDTH - 61)
-        self.y = random.randint(61, 150)
+        self.x = random.randint(71, WIDTH - 71)
+        self.y = random.randint(71, 150)
         self.r = 35
         self.points = 0
         self.live = 1
@@ -148,15 +148,15 @@ class Target:
     def move(self):
         self.x += self.Vx
         self.y += self.Vy
-        if self.x >= WIDTH - self.r or self.x <= self.r:
+        if self.x >= WIDTH - self.r - 10 or self.x <= self.r + 10:
             self.Vx = - self.Vx
-        elif self.y >= HEIGHT - self.r or self.y <= self.r:
+        elif self.y >= HEIGHT - self.r - 10 or self.y <= self.r + 10:
             self.Vy = - self.Vy
 
     def new_target(self):
         """ Инициализация новой цели. """
-        self.x = random.randint(61, WIDTH - 61)
-        self.y = random.randint(61, 150)
+        self.x = random.randint(71, WIDTH - 71)
+        self.y = random.randint(71, 150)
         self.r = 35
         self.live = 1
         self.Vx = random.randint(-10, 10)
@@ -209,6 +209,29 @@ class Laser:
             return False
 
 
+class Meta:
+    def __init__(self):
+        self.screen = screen
+        self.x = 0
+        self.y = 0
+        self.vy = 5
+    def draw(self):
+        self.screen.blit(bomb, (self.x - 60, self.y - 20))
+
+    def move(self):
+        if self.y >= 2*HEIGHT:
+            self.vy = 0
+        else:
+            self.vy += 0.2
+        self.y += self.vy
+
+    def hittest(self):
+        #if self.x <= gun.x + 55 + 25 and self.x > gun.x - 55 - 70 - 25 and self.y > gun.y - 31 - 75 and self.y < gun.y + 31 - 5:
+        if (self.x - gun.x)**2 + (self.y - 20 - gun.y)**2 <= (35 + 45)**2:
+            return True
+        else:
+            return False
+
 ammo = 0
 
 def ammo_change(a:int):
@@ -241,7 +264,7 @@ pygame.font.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 balls = []
-
+metas = []
 #balloon = pygame.image.load('pngfind.com-captain-planet-png-6387166.png')
 #balloon = pygame.transform.scale(balloon, (96, 163))
 
@@ -260,6 +283,18 @@ ufo = pygame.transform.scale(ufo, (109, 62))
 mark = pygame.image.load('Adobe_20211107_235838.png')
 mark = pygame.transform.scale(mark, (70, 70))
 
+bomb = pygame.image.load('Meta-Symbol.png')
+bomb = pygame.transform.scale(bomb, (120, 80))
+
+laser_sound = pygame.mixer.Sound('LaserLaserBeam EE136601_preview-[AudioTrimmer.com].mp3')
+cannon_sound = pygame.mixer.Sound('ES_Cannon Blast 4.mp3')
+ufo_explosion = pygame.mixer.Sound('soundscrate-bomb-explosion-1.mp3')
+background_music = pygame.mixer.Sound('8-bit-skyway-1980s-style-music-122195828_prev.mp3')
+
+pygame.mixer.Sound.set_volume(cannon_sound, 0.6)
+pygame.mixer.Sound.set_volume(laser_sound, 0.6)
+pygame.mixer.Sound.set_volume(background_music, 0.4)
+
 clock = pygame.time.Clock()
 gun = Gun(screen)
 target1 = Target()
@@ -267,6 +302,8 @@ target2 = Target()
 laser = Laser()
 finished = False
 gun_movement = 0
+pygame.mixer.Sound.play(background_music)
+seconds = 1
 
 while not finished:
     screen.blit(background, (0, 0))
@@ -287,11 +324,14 @@ while not finished:
                 gun.fire2_start(event)
             elif ammo == 1:
                 laser.fire_start()
+                pygame.mixer.Sound.play(laser_sound)
         elif event.type == pygame.MOUSEBUTTONUP:
             if ammo == 0:
                 gun.fire2_end(event)
+                pygame.mixer.Sound.play(cannon_sound)
             elif ammo == 1:
                 laser.fire_end()
+                pygame.mixer.Sound.stop(laser_sound)
         elif event.type == pygame.MOUSEMOTION:
             gun.targetting(event)
             laser.targetting(event)
@@ -319,46 +359,93 @@ while not finished:
             '''
 
     if pygame.key.get_pressed()[pygame.K_w]:
-        gun.move(0, -2)
+        gun.move(0, -4)
     elif pygame.key.get_pressed()[pygame.K_a]:
-        gun.move(-2, 0)
+        gun.move(-4, 0)
     elif pygame.key.get_pressed()[pygame.K_s]:
-        gun.move(0, 2)
+        gun.move(0, 4)
     elif pygame.key.get_pressed()[pygame.K_d]:
-        gun.move(2, 0)
+        gun.move(4, 0)
 
-    if ammo == 0:
-        for b in balls:
-            b.draw()
-    elif laser.firing == 1:
+    for b in balls:
+        b.draw()
+
+    if laser.firing == 1:
         laser.draw()
-    pygame.display.update()
 
     target1.move()
     target2.move()
 
-    if ammo == 0:
-        for b in balls:
-            b.move()
-            if b.hittest(target1) and target1.live:
-                target1.live = 0
-                target1.hit()
-                target1.new_target()
-            if b.hittest(target2) and target2.live:
-                target2.live = 0
-                target2.hit()
-                target2.new_target()
+    for b in balls:
+        b.move()
+
+    for b in balls:
+        if b.hittest(target1) and target1.live:
+            target1.live = 0
+            target1.hit()
+            target1.new_target()
+            pygame.mixer.Sound.play(ufo_explosion)
+        if b.hittest(target2) and target2.live:
+            target2.live = 0
+            target2.hit()
+            target2.new_target()
+            pygame.mixer.Sound.play(ufo_explosion)
 
     if ammo == 1:
         if laser.hittest_laser(target1) and target1.live:
             target1.live = 0
             target1.hit()
             target1.new_target()
+            pygame.mixer.Sound.play(ufo_explosion)
         if laser.hittest_laser(target2) and target2.live:
             target2.live = 0
             target2.hit()
             target2.new_target()
+            pygame.mixer.Sound.play(ufo_explosion)
+
+    if seconds % 60 == 0:
+        new_bomb1 = Meta()
+        new_bomb2 = Meta()
+        new_bomb1.x = target1.x
+        new_bomb1.y = target1.y
+        new_bomb2.x = target2.x
+        new_bomb2.y = target2.y
+        #new_bomb1.vy += target1.Vy
+        #new_bomb2.vy += target2.Vy
+        metas.append(new_bomb1)
+        metas.append(new_bomb2)
+
+    for m in metas:
+        m.draw()
+        m.move()
+
+    for m in metas:
+        if m.hittest():
+            finished = True
+
     gun.power_up()
+    seconds += 1
+    pygame.display.update()
+
+pygame.mixer.Sound.stop(background_music)
+finished = False
+
+while not finished:
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_BACKSPACE:
+                finished = True
+
+    screen.fill(BLACK)
+    font1 = pygame.font.SysFont('arial', int(200 * HEIGHT / 1500))
+    text1 = "GAME OVER"
+    tekst1 = font1.render(text1, True, WHITE)
+    screen.blit(tekst1, (WIDTH*0.25, HEIGHT/2))
+    font2 = pygame.font.SysFont('arial', int(50 * HEIGHT / 1500))
+    text2 = "PRESS BACKSPACE TO QUIT"
+    tekst2 = font2.render(text2, True, WHITE)
+    screen.blit(tekst2, (WIDTH/3, HEIGHT*0.7))
+    pygame.display.update()
 
 pygame.quit()
 pygame.font.quit()
