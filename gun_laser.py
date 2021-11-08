@@ -14,7 +14,7 @@ MAGENTA = 0xFF03B8
 CYAN = 0x00FFCC
 ORANGE = (255, 165, 0)
 BLACK = (0, 0, 0)
-WHITE = 0xFFFFFF
+WHITE = (255, 255, 255)
 GREY = 0x7D7D7D
 GAME_COLORS = [BLACK, RED, GREEN]
 
@@ -440,11 +440,11 @@ while not finished:
     font1 = pygame.font.SysFont('arial', int(200 * HEIGHT / 1500))
     text1 = "GAME OVER"
     tekst1 = font1.render(text1, True, WHITE)
-    screen.blit(tekst1, (WIDTH*0.25, HEIGHT/2))
+    screen.blit(tekst1, (WIDTH*0.25, HEIGHT*0.4))
     font2 = pygame.font.SysFont('arial', int(50 * HEIGHT / 1500))
     text2 = "PRESS BACKSPACE TO QUIT"
     tekst2 = font2.render(text2, True, WHITE)
-    screen.blit(tekst2, (WIDTH/3, HEIGHT*0.7))
+    screen.blit(tekst2, (WIDTH*0.35, HEIGHT*0.6))
     pygame.display.update()
 
 pygame.quit()
