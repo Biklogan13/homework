@@ -18,8 +18,8 @@ WHITE = (255, 255, 255)
 GREY = 0x7D7D7D
 GAME_COLORS = [BLACK, RED, GREEN]
 
-WIDTH = 850*2
-HEIGHT = 500*2
+#WIDTH = 850*2
+#HEIGHT = 500*2
 
 
 class Ball:
@@ -185,9 +185,9 @@ class Laser:
         self.firing = 0
 
     def draw(self):
-        pygame.draw.line(self.screen, RED, (gun.x, gun.y), (gun.x + math.cos(gun.an) * 2*WIDTH, gun.y + math.sin(gun.an) * 2*WIDTH), width=20)
-        pygame.draw.line(self.screen, ORANGE, (gun.x, gun.y), (gun.x + math.cos(gun.an) * 2*WIDTH, gun.y + math.sin(gun.an) * 2*WIDTH), width=8)
-        pygame.draw.line(self.screen, YELLOW, (gun.x, gun.y), (gun.x + math.cos(gun.an) * 2*WIDTH, gun.y + math.sin(gun.an) * 2*WIDTH), width=2)
+        pygame.draw.line(self.screen, RED, (gun.x, gun.y), (gun.x + math.cos(self.angle) * 2*WIDTH, gun.y + math.sin(self.angle) * 2*WIDTH), width=20)
+        pygame.draw.line(self.screen, ORANGE, (gun.x, gun.y), (gun.x + math.cos(self.angle) * 2*WIDTH, gun.y + math.sin(self.angle) * 2*WIDTH), width=8)
+        pygame.draw.line(self.screen, YELLOW, (gun.x, gun.y), (gun.x + math.cos(self.angle) * 2*WIDTH, gun.y + math.sin(self.angle) * 2*WIDTH), width=2)
         self.screen.blit(ufo, (gun.x - 55, gun.y - 31))
 
     #def lensdraw(self):
@@ -238,6 +238,8 @@ def ammo_change(a:int):
     global ammo
     if a == 1:
         ammo = 0
+        laser.fire_end()
+        pygame.mixer.Sound.stop(laser_sound)
     elif a == 0:
         ammo = 1
     print(a)
@@ -262,7 +264,12 @@ def rot_center(image, angle):
 pygame.init()
 pygame.font.init()
 pygame.mixer.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+#screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+WIDTH = pygame.display.Info().current_w
+HEIGHT = pygame.display.Info().current_h
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.NOFRAME)
+pygame.display.toggle_fullscreen()
 balls = []
 metas = []
 #balloon = pygame.image.load('pngfind.com-captain-planet-png-6387166.png')
@@ -338,25 +345,10 @@ while not finished:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LSHIFT:
                 ammo_change(ammo)
-            '''
-            if event.key == pygame.K_w:
-                gun_movement = 1
-            if event.key == pygame.K_a:
-                gun_movement = 2
-            if event.key == pygame.K_s:
-                gun_movement = 3
-            if event.key == pygame.K_d:
-                gun_movement = 4
-        elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_w:
-                gun_movement = 0
-            if event.key == pygame.K_a:
-                gun_movement = 0
-            if event.key == pygame.K_s:
-                gun_movement = 0
-            if event.key == pygame.K_d:
-                gun_movement = 0
-            '''
+            if event.key == pygame.K_BACKSPACE:
+                finished = True
+
+    laser.angle = math.atan2((pygame.mouse.get_pos()[1] - gun.y), (pygame.mouse.get_pos()[0] - gun.x))
 
     if pygame.key.get_pressed()[pygame.K_w]:
         gun.move(0, -4)
@@ -427,6 +419,7 @@ while not finished:
     seconds += 1
     pygame.display.update()
 
+pygame.mixer.Sound.stop(laser_sound)
 pygame.mixer.Sound.stop(background_music)
 finished = False
 
