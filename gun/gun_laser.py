@@ -87,6 +87,10 @@ class Gun:
         self.color = GREY
         self.x = WIDTH/2
         self.y = HEIGHT/2
+        self.Vx = 0
+        self.Vy = 0
+        self.ax = 0
+        self.ay = 0
 
     def fire2_start(self, event):
         self.f2_on = 1
@@ -129,9 +133,48 @@ class Gun:
             self.color = RED
         else:
             self.color = GREY
-    def move(self, vx, vy):
-        self.x += vx
-        self.y += vy
+
+    def move(self):
+
+        if pygame.key.get_pressed()[pygame.K_w]:
+            self.ay = -1
+        elif pygame.key.get_pressed()[pygame.K_s]:
+            self.ay = 1
+        else:
+            self.ay = 0
+
+        if pygame.key.get_pressed()[pygame.K_a]:
+            self.ax = -1
+        elif pygame.key.get_pressed()[pygame.K_d]:
+            self.ax = 1
+        else:
+            self.ax = 0
+
+        if self.ax >= 0:
+            if self.Vx <= 10:
+                self.Vx += self.ax
+        if self.ax <= 0:
+            if self.Vx >= -10:
+                self.Vx += self.ax
+        if self.ay >= 0:
+            if self.Vy <= 10:
+                self.Vy += self.ay
+        if self.ay <= 0:
+            if self.Vy >= -10:
+                self.Vy += self.ay
+
+        if self.Vx >= 0:
+            if self.x <= WIDTH:
+                self.x += self.Vx
+        if self.Vx <= 0:
+            if self.x >= 0:
+                self.x += self.Vx
+        if self.Vy >= 0:
+            if self.y <= HEIGHT:
+                self.y += self.Vy
+        if self.Vy <= 0:
+            if self.y >= 0:
+                self.y += self.Vy
 
 
 class Target:
@@ -350,14 +393,7 @@ while not finished:
 
     laser.angle = math.atan2((pygame.mouse.get_pos()[1] - gun.y), (pygame.mouse.get_pos()[0] - gun.x))
 
-    if pygame.key.get_pressed()[pygame.K_w]:
-        gun.move(0, -4)
-    elif pygame.key.get_pressed()[pygame.K_a]:
-        gun.move(-4, 0)
-    elif pygame.key.get_pressed()[pygame.K_s]:
-        gun.move(0, 4)
-    elif pygame.key.get_pressed()[pygame.K_d]:
-        gun.move(4, 0)
+    gun.move()
 
     for b in balls:
         b.draw()
